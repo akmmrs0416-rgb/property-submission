@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ai TRADING｜案件投稿</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--surface:#13161e;--surface2:#1b1f2a;--border:#252a38;--accent:#e8341c;--accent2:#ff6b4a;--text:#e8eaf0;--muted:#5a6070;--gold:#f5a623;--green:#34d399}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding:24px 20px 48px;max-width:640px;margin:0 auto}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.logo{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:3px;background:rgba(232,52,28,0.1);border:1px solid rgba(232,52,28,0.25);padding:5px 12px;border-radius:3px}
+.header-title{font-size:16px;font-weight:500}
+.header-sub{font-size:11px;color:var(--muted);margin-left:auto;font-family:'Space Mono',monospace}
+.config-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.config-label{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.config-ok{font-size:11px;color:var(--muted);margin-left:auto}.config-ok.ok{color:var(--green)}
+.config-arrow{font-size:10px;color:var(--muted);margin-left:4px}
+.config-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:14px;margin-top:-14px;margin-bottom:14px;display:none}
+.config-body.open{display:block}
+.config-field{margin-bottom:10px}
+.config-field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.config-field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;outline:none}
+.config-field input:focus{border-color:var(--gold)}
+.btn-cfg{width:100%;padding:9px;background:transparent;border:1px solid var(--gold);border-radius:6px;color:var(--gold);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:4px}
+.btn-cfg:hover{background:rgba(245,166,35,0.1)}
+.cfg-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:26px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:14px;position:relative;background:var(--surface)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(232,52,28,0.04)}
+.drop-zone.has-file{border-color:var(--green);border-style:solid;background:rgba(52,211,153,0.04)}
+.drop-icon{font-size:26px;margin-bottom:7px;opacity:0.5}
+.drop-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.drop-sub{font-size:12px;color:var(--muted)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn-analyze{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#c42a14);border:none;border-radius:8px;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.btn-analyze:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 20px rgba(232,52,28,0.3)}
+.btn-analyze:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:10px;letter-spacing:2px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:var(--gold);margin-bottom:12px}
+.form-section{margin-bottom:14px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+.field select option{background:var(--surface2)}
+.field textarea{resize:vertical;min-height:60px}
+.ai-filled{border-color:rgba(245,166,35,0.5)!important;background:rgba(245,166,35,0.04)!important}
+.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.type-btn{padding:8px 4px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all 0.15s;text-align:center}
+.type-btn:hover{border-color:var(--text);color:var(--text)}
+.type-btn.active{border-color:var(--accent);background:rgba(232,52,28,0.1);color:var(--accent)}
+.btn-submit{width:100%;padding:15px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.btn-submit:disabled{opacity:0.4;cursor:not-allowed}
+.status-bar{margin-top:12px;padding:12px 16px;border-radius:8px;font-size:13px;display:none;line-height:1.6}
+.status-bar.visible{display:block}
+.status-bar.loading{background:rgba(232,52,28,0.08);border:1px solid rgba(232,52,28,0.2);color:var(--accent2)}
+.status-bar.success{background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--green)}
+.status-bar.error{background:rgba(232,52,28,0.08);border:1px solid rgba(232,52,28,0.2);color:var(--accent2)}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.history{margin-top:24px}
+.history-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.history-item{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--green);border-radius:6px;padding:10px 14px;margin-bottom:8px;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.history-name{font-size:13px;font-weight:500}
+.history-meta{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+.badge-ok{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:var(--green)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">ai TRADING</div>
+  <div class="header-title">案件投稿</div>
+  <div class="header-sub">PROPERTY SUBMISSION</div>
+</div>
+
+<div class="config-toggle" onclick="toggleConfig()">
+  <span style="font-size:14px">⚙</span>
+  <span class="config-label">接続設定</span>
+  <span class="config-ok" id="cfgOk">未設定</span>
+  <span class="config-arrow" id="cfgArrow">▼</span>
+</div>
+<div class="config-body" id="cfgBody">
+  <div class="config-field">
+    <label>Apps Script URL</label>
+    <input type="text" id="cfgGas" placeholder="https://script.google.com/macros/s/.../exec">
+  </div>
+  <button class="btn-cfg" onclick="saveConfig()">保存</button>
+  <div class="cfg-note">GeminiキーはApps Script内に保存済みのため、ここでの設定は不要です。</div>
+</div>
+
+<div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+  <div class="drop-icon">📄</div>
+  <div class="drop-title">物件PDFをドロップ または クリックして選択</div>
+  <div class="drop-sub" id="dropSub">AIが自動で読み取り・Driveに保存します</div>
+  <input type="file" id="fileInput" accept=".pdf" onchange="onFileSelect(event)">
+</div>
+
+<button class="btn-analyze" id="btnAnalyze" onclick="analyzePDF()" disabled>AIで物件情報を自動入力</button>
+
+<div class="divider">確認・編集してから投稿</div>
+<div id="aiFilledBadge" style="display:none"><div class="ai-badge">✦ AIが自動入力 — 内容を確認してから投稿してください</div></div>
+
+<div class="form-section">
+  <div class="section-label">基本情報</div>
+  <div class="grid-2">
+    <div class="field"><label>投稿日</label><input type="date" id="f_date"></div>
+    <div class="field"><label>投稿者</label><input type="text" id="f_reporter" placeholder="例：SAA、Masaki"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-label">種別</div>
+  <div class="type-grid">
+    <button class="type-btn" onclick="selectType(this,'売土地・用地')">売土地・用地</button>
+    <button class="type-btn" onclick="selectType(this,'ホテル・旅館')">ホテル・旅館</button>
+    <button class="type-btn" onclick="selectType(this,'ビル・建物')">ビル・建物</button>
+    <button class="type-btn" onclick="selectType(this,'住宅・戸建')">住宅・戸建</button>
+    <button class="type-btn" onclick="selectType(this,'M&A案件')">M&A案件</button>
+    <button class="type-btn" onclick="selectType(this,'蓄電池用地')">蓄電池用地</button>
+    <button class="type-btn" onclick="selectType(this,'その他')">その他</button>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-label">物件情報</div>
+  <div class="field" style="margin-bottom:10px">
+    <label>物件名・所在地</label>
+    <input type="text" id="f_name" placeholder="例：三交イン名古屋錦（名古屋市中区錦3-7-23）">
+  </div>
+  <div class="grid-4">
+    <div class="field">
+      <label>エリア</label>
+      <select id="f_area">
+        <option value="">選択</option>
+        <option>北海道</option><option>東北</option><option>関東</option><option>中部</option><option>近畿</option><option>中国</option><option>四国</option><option>九州</option><option>沖縄</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>都道府県</label>
+      <select id="f_prefecture">
+        <option value="">選択</option>
+        <option>北海道</option>
+        <option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option>
+        <option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option>
+        <option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+        <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+        <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+        <option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option>
+        <option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option>
+        <option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option>
+        <option>沖縄県</option>
+      </select>
+    </div>
+    <div class="field"><label>坪数・規模</label><input type="text" id="f_tsubo" placeholder="例：1000坪"></div>
+    <div class="field"><label>金額（目線）</label><input type="text" id="f_price" placeholder="例：50億円"></div>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-label">条件・備考</div>
+  <div class="grid-2">
+    <div class="field">
+      <label>手数料</label>
+      <select id="f_fee"><option value="">未定</option><option>両手</option><option>片手</option><option>分かれ</option></select>
+    </div>
+    <div class="field">
+      <label>ステータス</label>
+      <select id="f_status"><option>未対応</option><option>検討中</option><option>提案済み</option><option>進行中</option><option>成約</option><option>売り止め</option><option>見送り</option></select>
+    </div>
+  </div>
+  <div class="field" style="margin-top:10px">
+    <label>担当メモ・補足</label>
+    <textarea id="f_memo" placeholder="情報源、特記事項、利回り、室数など"></textarea>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="section-label">ファイル</div>
+  <div class="field">
+    <label>PDFファイル名（自動入力）</label>
+    <input type="text" id="f_pdf" placeholder="PDFを選択すると自動入力" readonly style="color:var(--muted)">
+  </div>
+</div>
+
+<button class="btn-submit" id="btnSubmit" onclick="submitForm()">投稿 ＆ PDFをDriveに保存</button>
+<div class="status-bar" id="statusBar"></div>
+
+<div id="historyArea" style="display:none" class="history">
+  <div class="history-label">投稿済み（今セッション）</div>
+  <div id="historyList"></div>
+</div>
+
+<script>
+const PREF_TO_AREA = {
+  '北海道':'北海道',
+  '青森県':'東北','岩手県':'東北','宮城県':'東北','秋田県':'東北','山形県':'東北','福島県':'東北',
+  '茨城県':'関東','栃木県':'関東','群馬県':'関東','埼玉県':'関東','千葉県':'関東','東京都':'関東','神奈川県':'関東',
+  '新潟県':'中部','富山県':'中部','石川県':'中部','福井県':'中部','山梨県':'中部','長野県':'中部','岐阜県':'中部','静岡県':'中部','愛知県':'中部','三重県':'中部',
+  '滋賀県':'近畿','京都府':'近畿','大阪府':'近畿','兵庫県':'近畿','奈良県':'近畿','和歌山県':'近畿',
+  '鳥取県':'中国','島根県':'中国','岡山県':'中国','広島県':'中国','山口県':'中国',
+  '徳島県':'四国','香川県':'四国','愛媛県':'四国','高知県':'四国',
+  '福岡県':'九州','佐賀県':'九州','長崎県':'九州','熊本県':'九州','大分県':'九州','宮崎県':'九州','鹿児島県':'九州',
+  '沖縄県':'沖縄'
+};
+
+let selectedType='',pdfBase64='',pdfFileName='',lastDriveUrl='';
+
+window.addEventListener('load',()=>{
+  const gas=localStorage.getItem('gasUrl');
+  if(gas){document.getElementById('cfgGas').value=gas;document.getElementById('cfgOk').textContent='✓ 設定済み';document.getElementById('cfgOk').classList.add('ok')}
+  document.getElementById('f_date').value=new Date().toISOString().split('T')[0];
+  // 都道府県→エリア自動連動
+  document.getElementById('f_prefecture').addEventListener('change',function(){
+    const area=PREF_TO_AREA[this.value];
+    if(area) document.getElementById('f_area').value=area;
+  });
+});
+
+function toggleConfig(){const b=document.getElementById('cfgBody'),a=document.getElementById('cfgArrow');b.classList.toggle('open');a.textContent=b.classList.contains('open')?'▲':'▼'}
+function saveConfig(){
+  const gas=document.getElementById('cfgGas').value.trim();
+  if(!gas.includes('script.google.com')){showStatus('error','URLが正しくありません');return}
+  localStorage.setItem('gasUrl',gas);
+  document.getElementById('cfgOk').textContent='✓ 設定済み';document.getElementById('cfgOk').classList.add('ok');
+  document.getElementById('cfgBody').classList.remove('open');document.getElementById('cfgArrow').textContent='▼';
+}
+
+function onDragOver(e){e.preventDefault();document.getElementById('dropZone').classList.add('drag-over')}
+function onDragLeave(e){document.getElementById('dropZone').classList.remove('drag-over')}
+function onDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')loadPDF(f)}
+function onFileSelect(e){const f=e.target.files[0];if(f)loadPDF(f)}
+
+function loadPDF(file){
+  pdfFileName=file.name;document.getElementById('f_pdf').value=file.name;
+  const r=new FileReader();
+  r.onload=e=>{pdfBase64=e.target.result.split(',')[1];document.getElementById('dropZone').classList.add('has-file');document.getElementById('dropSub').textContent='📎 '+file.name;document.getElementById('btnAnalyze').disabled=false};
+  r.readAsDataURL(file);
+}
+
+async function gasRequest(payload){
+  const gasUrl=localStorage.getItem('gasUrl');
+  if(!gasUrl){showStatus('error','設定からApps Script URLを入力してください');toggleConfig();throw new Error('no url')}
+  const res=await fetch(gasUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload),redirect:'follow'});
+  return await res.json();
+}
+
+async function analyzePDF(){
+  if(!pdfBase64)return;
+  const btn=document.getElementById('btnAnalyze');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>AIが読み取り中...';
+  showStatus('loading','<span class="spinner"></span>PDFを解析 ＆ Driveに保存中...');
+  try{
+    const result=await gasRequest({action:'analyze',pdfData:pdfBase64,pdfName:pdfFileName});
+    if(result.status==='error')throw new Error(result.message);
+    fillForm(result.data);
+    if(result.driveUrl) lastDriveUrl=result.driveUrl;
+    document.getElementById('aiFilledBadge').style.display='block';
+    showStatus('success','✓ PDF読み取り完了 ＆ Driveに保存しました。内容を確認して投稿してください。');
+  }catch(e){showStatus('error','読み取りに失敗しました: '+e.message)}
+  finally{btn.disabled=false;btn.innerHTML='AIで物件情報を自動入力'}
+}
+
+function fillForm(d){
+  const set=(id,val)=>{if(!val)return;const el=document.getElementById(id);el.value=val;el.classList.add('ai-filled')};
+  set('f_name',d.name);set('f_tsubo',d.tsubo);set('f_price',d.price);set('f_fee',d.fee);set('f_memo',d.memo);
+  // 都道府県とエリアをセット
+  if(d.prefecture){
+    set('f_prefecture',d.prefecture);
+    const area=PREF_TO_AREA[d.prefecture];
+    if(area){document.getElementById('f_area').value=area;document.getElementById('f_area').classList.add('ai-filled')}
+  } else if(d.area){
+    set('f_area',d.area);
+  }
+  if(d.type)document.querySelectorAll('.type-btn').forEach(b=>{if(b.textContent.trim()===d.type){b.classList.add('active');selectedType=d.type}});
+}
+
+function selectType(btn,type){document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedType=type}
+
+async function submitForm(){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){showStatus('error','物件名・所在地を入力してください');return}
+  const d=new Date(document.getElementById('f_date').value);
+  const date=String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+  const reporter=document.getElementById('f_reporter').value;
+  const memo=document.getElementById('f_memo').value;
+  document.getElementById('btnSubmit').disabled=true;
+  showStatus('loading','<span class="spinner"></span>スプレッドシートに投稿中...');
+  try{
+    const result=await gasRequest({
+      action:'submit',date,name,
+      type:selectedType,
+      area:document.getElementById('f_area').value,
+      prefecture:document.getElementById('f_prefecture').value,
+      tsubo:document.getElementById('f_tsubo').value,
+      price:document.getElementById('f_price').value,
+      fee:document.getElementById('f_fee').value,
+      status:document.getElementById('f_status').value,
+      reporter:reporter,
+      memo:memo,
+      pdf:pdfFileName,
+      driveUrl:lastDriveUrl
+    });
+    if(result.status==='error')throw new Error(result.message);
+    addHistory({date,name,type:selectedType,area:document.getElementById('f_area').value,prefecture:document.getElementById('f_prefecture').value,price:document.getElementById('f_price').value,pdf:pdfFileName,reporter});
+    showStatus('success','✓「'+name+'」を投稿しました。');
+    resetForm();
+  }catch(e){showStatus('error','投稿に失敗しました: '+e.message)}
+  finally{document.getElementById('btnSubmit').disabled=false}
+}
+
+function addHistory(d){
+  const div=document.createElement('div');div.className='history-item';
+  div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><div class="history-name">'+d.name+'</div><span class="badge-ok">投稿済み</span></div><div class="history-meta"><span>'+d.date+'</span><span>'+(d.type||'種別未設定')+'</span><span>'+(d.area||'')+'</span>'+(d.prefecture?'<span>'+d.prefecture+'</span>':'')+(d.price?'<span>'+d.price+'</span>':'')+(d.reporter?'<span>👤 '+d.reporter+'</span>':'')+(d.pdf?'<span>📎 '+d.pdf+'</span>':'')+'</div>';
+  document.getElementById('historyList').insertBefore(div,document.getElementById('historyList').firstChild);
+  document.getElementById('historyArea').style.display='block';
+}
+
+function showStatus(type,msg){const bar=document.getElementById('statusBar');bar.className='status-bar visible '+type;bar.innerHTML=msg}
+
+function resetForm(){
+  ['f_name','f_tsubo','f_price','f_memo'].forEach(id=>{const el=document.getElementById(id);el.value='';el.classList.remove('ai-filled')});
+  ['f_fee','f_area','f_prefecture'].forEach(id=>{const el=document.getElementById(id);el.value='';el.classList.remove('ai-filled')});
+  document.getElementById('f_status').value='未対応';document.getElementById('f_pdf').value='';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  selectedType='';pdfBase64='';pdfFileName='';lastDriveUrl='';
+  document.getElementById('dropZone').classList.remove('has-file');
+  document.getElementById('dropSub').textContent='AIが自動で読み取り・Driveに保存します';
+  document.getElementById('btnAnalyze').disabled=true;
+  document.getElementById('aiFilledBadge').style.display='none';
+  document.getElementById('f_date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fileInput').value='';
+}
+</script>
+</body>
+</html>
